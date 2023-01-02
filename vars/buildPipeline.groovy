@@ -34,9 +34,7 @@ spec:
       - name: jenkins-docker-cfg
         mountPath: /root/.docker
       - name: kaniko-cache
-        mountPath: /cache  
-      - name: service-account
-        mountPath: /var/run/secret/cloud.google.com        
+        mountPath: /cache             
     resources:
       requests:
         memory: "1792Mi"

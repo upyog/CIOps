@@ -53,14 +53,6 @@ spec:
     persistentVolumeClaim:
       claimName: kaniko-cache-claim
       readOnly: true      
-  - name: service-account
-    projected:
-      sources:
-      - secret:
-          name: jenkins-credentials
-          items:
-            - key: gcpServiceAccount
-              path: service-account.json   
   - name: jenkins-docker-cfg
     projected:
       sources:

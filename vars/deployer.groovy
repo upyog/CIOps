@@ -17,8 +17,6 @@ spec:
       - name: "GOOGLE_APPLICATION_CREDENTIALS"
         value: "/var/run/secret/cloud.google.com/service-account.json"              
     volumeMounts:
-      - name: service-account
-        mountPath: /var/run/secret/cloud.google.com
       - name: kube-config
         mountPath: /root/.kube     
     resources:

@@ -13,10 +13,8 @@ spec:
     command:
     - cat
     tty: true
-    env:  
-      - name: "GOOGLE_APPLICATION_CREDENTIALS"
-        value: "/var/run/secret/cloud.google.com/service-account.json"              
-    volumeMounts:      
+    env:               
+    volumeMounts:
       - name: kube-config
         mountPath: /root/.kube     
     resources:
@@ -26,7 +24,7 @@ spec:
       limits:
         memory: "256Mi"
         cpu: "200m"  
-  volumes:
+  volumes:  
   - name: kube-config
     secret:
         secretName: "${pipelineParams.environment}-kube-config"                    

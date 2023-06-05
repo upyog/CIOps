@@ -29,7 +29,7 @@ spec:
             name: jenkins-credentials
             key: dockerPassword
       - name: DOCKER_NAMESPACE
-        value: upyogio
+        value: {{DOCKER_ACCOUNT}}
       - name: DOCKER_GROUP_NAME  
         value: dev
     resources:

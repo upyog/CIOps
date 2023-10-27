@@ -29,18 +29,18 @@ spec:
         valueFrom:
           secretKeyRef:
             name: jenkins-credentials
-            key: gitReadAccessToken                                     
+            key: gitReadAccessToken             
     volumeMounts:
       - name: jenkins-docker-cfg
         mountPath: /root/.docker
       - name: kaniko-cache
-        mountPath: /cache            
+        mountPath: /cache     
     resources:
       requests:
         memory: "1792Mi"
         cpu: "750m"
       limits:
-        memory: "3954Mi"
+        memory: "4080Mi"
         cpu: "1500m"      
   - name: git
     image: docker.io/egovio/builder:2-64da60a1-version_script_update-NA
@@ -52,7 +52,7 @@ spec:
   - name: kaniko-cache
     persistentVolumeClaim:
       claimName: kaniko-cache-claim
-      readOnly: true        
+      readOnly: true      
   - name: jenkins-docker-cfg
     projected:
       sources:
@@ -66,7 +66,7 @@ spec:
         node(POD_LABEL) {
 
             def scmVars = checkout scm
-            String REPO_NAME = env.REPO_NAME ? env.REPO_NAME : "docker.io/upyogio";         
+            String REPO_NAME = env.REPO_NAME ? env.REPO_NAME : "docker.io/{{DOCKER_ACCOUNT}}";         
             String GCR_REPO_NAME = "asia.gcr.io/digit-egov";
             def yaml = readYaml file: pipelineParams.configFile;
             List<JobConfig> jobConfigs = ConfigParser.parseConfig(yaml, env);
@@ -127,7 +127,7 @@ spec:
                                     --destination=${image} \
                                     --destination=${gcr_image} \
                                     --no-push=${noPushImage} \
-                                    --cache-repo=upyogio/cache/cache
+                                    --cache-repo={{DOCKER_ACCOUNT}}/cache/cache
                                   """  
                                   echo "${image} and ${gcr_image} pushed successfully!!"                              
                                 }
@@ -142,7 +142,7 @@ spec:
                                     --snapshotMode=time \
                                     --destination=${image} \
                                     --no-push=${noPushImage} \
-                                    --cache-repo=upyogio/cache/cache
+                                    --cache-repo={{DOCKER_ACCOUNT}}/cache/cache
                                 """
                                 echo "${image} pushed successfully!"
                                 }                                

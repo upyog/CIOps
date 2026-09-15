@@ -13,36 +13,67 @@ spec:
     command:
     - cat
     tty: true
-    env:  
+    env:
       - name: "GOOGLE_APPLICATION_CREDENTIALS"
-        value: "/var/run/secret/cloud.google.com/service-account.json"              
-    volumeMounts:      
+        value: "/var/run/secret/cloud.google.com/service-account.json"
+    volumeMounts:
       - name: kube-config
-        mountPath: /root/.kube     
+        mountPath: /root/.kube
     resources:
       requests:
         memory: "256Mi"
         cpu: "200m"
       limits:
         memory: "256Mi"
-        cpu: "200m"  
+        cpu: "200m"
   volumes:
   - name: kube-config
     secret:
-        secretName: "${pipelineParams.environment}-kube-config"                    
+        secretName: "${pipelineParams.environment}-kube-config"
 """
     ) {
         node(POD_LABEL) {
-            git url: pipelineParams.repo, branch: pipelineParams.branch, credentialsId: 'git_read'
-                stage('Deploy Images') {
-                        container(name: 'egov-deployer', shell: '/bin/sh') {
-                            sh """
-                                /opt/egov/egov-deployer deploy --helm-dir `pwd`/${pipelineParams.helmDir} -c=${env.CLUSTER_CONFIGS}  -e ${pipelineParams.environment} "${env.IMAGES}"
-                            """
-                            }
+          git url: pipelineParams.repo, branch: pipelineParams.branch, credentialsId: 'git_read_token'
+           
+            // Adding the "Export Kubeconfig Secret" stage
+            stage('Export Kubeconfig Secret') {
+                container(name: 'egov-deployer', shell: '/bin/sh') {
+                    echo "params.Images=${params.Images}"
+                    echo "params.IMAGES=${params.IMAGES}"
+                    echo "env.Images=${env.Images}"
+                    echo "env.IMAGES=${env.IMAGES}"
+                    sh """
+                        # Create the .kube directory
+                        #mkdir -p kube
+                        
+                        # Extract the kubeconfig from the secret and write it to a file
+                        #kubectl get secret ${pipelineParams.environment}-kube-config -n jenkins -o jsonpath='{.data.config}' | base64 -d > kube/config
+                        
+                        # Optionally, set KUBECONFIG environment variable to use this kubeconfig
+                        export KUBECONFIG=/root/.kube/config
+                        kubectl config get-contexts
+                        kubectl config current-context
+                        aws-iam-authenticator version
+                        kubectl get nodes
+                        pwd && ls -la config-as-code/helm/charts
+                    """
                 }
+            }
+          
+            // git url: pipelineParams.repo, branch: pipelineParams.branch, credentialsId: 'git_read'
+            stage('Deploy Images') {
+                container(name: 'egov-deployer', shell: '/bin/sh') {
+                    echo "params.IMAGES=${params.Images}"
+
+                    sh """
+                       /opt/egov/egov-deployer deploy \
+                       --helm-dir `pwd`/${pipelineParams.helmDir} \
+                       -c=${env.CLUSTER_CONFIGS} \
+                       -e ${pipelineParams.environment} \
+                       "${params.Images}"
+                    """
+                }
+            }
         }
     }
-
-
 }

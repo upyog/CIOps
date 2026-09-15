@@ -15,8 +15,8 @@ def call(Map params) {
     // just a tiny HTTP call + string matching.
     def agentLabel = params.agentLabel ?: 'built-in'
 
-    // Fixed downstream branch param — always niua-dev-2.0 regardless of trigger branch
-    final String DOWNSTREAM_BRANCH = 'niua-dev-2.0'
+    // Fixed downstream branch param — always master regardless of trigger branch
+    final String DOWNSTREAM_BRANCH = 'master'
 
     node(agentLabel) {
 

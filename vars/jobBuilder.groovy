@@ -94,7 +94,7 @@ spec:
                         description('')
                         branch('')
                         useRepository('')
-                        defaultValue('niua-dev-2.0')
+                        defaultValue('master')
                         branchFilter('origin/(.*)')
                         tagFilter('*')
                         sortMode('ASCENDING_SMART')
